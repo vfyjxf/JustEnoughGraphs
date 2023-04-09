@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8.2",
+  "package": "com.github.vfyjxf.justenoughgraphs.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+  ],
+  "mixins": [
+    "RecipeLayoutBuilderAccessor",
+    "RecipeManagerAccessor",
+    "RecipeManagerInternalAccessor",
+    "RecipesGuiAccessor"
+  ]
+}

@@ -1,0 +1,236 @@
+buildscript {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        maven { url = 'https://repo.spongepowered.org/maven' }
+    }
+    dependencies {
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+    }
+}
+
+plugins {
+    id 'eclipse'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '5.1.+'
+    id 'com.github.johnrengelman.shadow' version '7.+'
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+}
+
+apply plugin: 'org.spongepowered.mixin'
+
+version = mod_version
+group = mod_group
+archivesBaseName = 'JustEnoughGraphs' + '-' + minecraft_version + '-'
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
+
+def static isJetBrainsRuntime() {
+    return System.getProperty('java.vm.vendor').contains('JetBrains')
+}
+
+minecraft {
+    mappings channel: 'parchment', version: "${mapping_version}"
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            property 'forge.enabledGameTestNamespaces', 'justenoughgraphs'
+            if (isJetBrainsRuntime()) {
+                jvmArgs "-XX:+AllowEnhancedClassRedefinition"
+                jvmArgs "-XX:HotswapAgent=fatjar"
+            }
+            mods {
+                justenoughgraphs {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            property 'forge.enabledGameTestNamespaces', 'justenoughgraphs'
+            if (isJetBrainsRuntime()) {
+                jvmArgs "-XX:+AllowEnhancedClassRedefinition"
+                jvmArgs "-XX:HotswapAgent=fatjar"
+            }
+            mods {
+                justenoughgraphs {
+                    source sourceSets.main
+                }
+            }
+        }
+        gameTestServer {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            property 'forge.enabledGameTestNamespaces', 'justenoughgraphs'
+            if (isJetBrainsRuntime()) {
+                jvmArgs "-XX:+AllowEnhancedClassRedefinition"
+                jvmArgs "-XX:HotswapAgent=fatjar"
+            }
+            mods {
+                justenoughgraphs {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            args '--mod', 'justenoughgraphs', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            mods {
+                justenoughgraphs {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+configurations {
+    shade
+    minecraftLibrary.extendsFrom(shade)
+}
+
+repositories {
+
+    maven {
+        // location of the maven that hosts JEI files
+        name = "Progwml6 maven"
+        url = "https://dvs1.progwml6.com/files/maven/"
+    }
+    maven {
+        // location of a maven mirror for JEI files, as a fallback
+        name = "ModMaven"
+        url = "https://modmaven.dev"
+    }
+    mavenCentral()
+
+}
+
+dependencies {
+
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+
+    compileOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}"))
+    runtimeOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}"))
+
+    shade('org.eclipse.elk:org.eclipse.elk.core:0.8.1') {
+        transitive = false
+    }
+    shade('org.eclipse.elk:org.eclipse.elk.alg.common:0.8.1') {
+        transitive = false
+    }
+    shade('org.eclipse.elk:org.eclipse.elk.alg.layered:0.8.1') {
+        transitive = false
+    }
+    shade('org.eclipse.elk:org.eclipse.elk.alg.mrtree:0.8.1') {
+        transitive = false
+    }
+    shade('org.eclipse.elk:org.eclipse.elk.graph:0.8.1') {
+        //exclude duplicate dependencies
+        exclude group: 'com.google.guava', module: 'failureaccess'
+        exclude group: 'com.google.guava', module: 'listenablefuture'
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+        exclude group: 'org.checkerframework', module: 'checker-qual'
+        exclude group: 'com.google.j2objc', module: 'j2objc-annotations'
+    }
+    shade('org.eclipse.elk:org.eclipse.elk.graph.json:0.8.1') {
+        //exclude duplicate dependencies
+        exclude group: 'com.google.code.gson', module: 'gson'
+        exclude group: 'com.google.guava', module: 'failureaccess'
+        exclude group: 'com.google.guava', module: 'listenablefuture'
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+        exclude group: 'org.checkerframework', module: 'checker-qual'
+        exclude group: 'com.google.j2objc', module: 'j2objc-annotations'
+    }
+    shade('org.eclipse.elk:org.eclipse.elk.alg.packing.rectangles:0.6.0') {
+        transitive = false
+    }
+
+}
+
+mixin {
+    add sourceSets.main, "justenoughgraphs.refmap.json"
+
+    config "justenoughgraphs.mixins.json"
+
+    debug.export = true
+    mixin.hotSwap = true
+    mixin.checks.interfaces = true
+}
+
+
+jar {
+    archiveClassifier.set('slim')
+    manifest {
+        attributes([
+                "Specification-Title"     : "Just Enough Graphs",
+                "Specification-Vendor"    : "vfyjxf_",
+                "Specification-Version"   : project.version,
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : project.version,
+                "Implementation-Vendor"   : "vfyjxf_",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
+shadowJar {
+    archiveClassifier.set("")
+    configurations = [project.configurations.shade]
+
+    exclude 'about*'
+    exclude 'plugin*'
+    exclude '*.png'
+    exclude 'docs/**'
+    exclude 'images/**'
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+    exclude 'META-INF/*.MF'
+    exclude 'META-INF/CHANGES'
+    exclude 'META-INF/DEPENDENCIES'
+    exclude 'META-INF/LICENSE**'
+    exclude 'META-INF/NOTICE**'
+    exclude 'META-INF/README**'
+    exclude 'META-INF/maven/**'
+
+    relocate 'org.ecplise.elk', 'com.github.vfyjxf.shadow.org.eclipse.elk'
+    relocate 'org.checkerframework', 'com.github.vfyjxf.shadow.org.checkerframework'
+    relocate 'org.codehaus', 'com.github.vfyjxf.shadow.org.codehaus'
+    relocate 'com.google', 'com.github.vfyjxf.shadow.com.google'
+    relocate 'javax', 'com.github.vfyjxf.shadow.javax'
+
+    dependencies {
+        exclude('com.google.guava:failureaccess')
+        exclude('com.google.guava:listenablefuture')
+        exclude('com.google.code.findbugs:jsr305')
+        exclude('org.checkerframework:checker-qual')
+        exclude('com.google.j2objc:j2objc-annotations')
+    }
+
+    finalizedBy 'reobfShadowJar'
+}
+
+assemble.dependsOn shadowJar
+
+reobf {
+    shadowJar {}
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+jar.finalizedBy('reobfJar')
