@@ -6,9 +6,9 @@
   "client": [
   ],
   "mixins": [
-    "RecipeLayoutBuilderAccessor",
-    "RecipeManagerAccessor",
-    "RecipeManagerInternalAccessor",
-    "RecipesGuiAccessor"
+    "jei.RecipeLayoutBuilderAccessor",
+    "jei.RecipeManagerAccessor",
+    "jei.RecipeManagerInternalAccessor",
+    "jei.RecipesGuiAccessor"
   ]
 }

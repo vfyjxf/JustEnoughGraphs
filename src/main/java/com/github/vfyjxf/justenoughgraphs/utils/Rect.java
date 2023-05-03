@@ -176,4 +176,35 @@ public class Rect {
         return new Rect(left, right, up + delta, down + delta);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Rect rect = (Rect) o;
+
+        if (left != rect.left) return false;
+        if (right != rect.right) return false;
+        if (up != rect.up) return false;
+        return down == rect.down;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = left;
+        result = 31 * result + right;
+        result = 31 * result + up;
+        result = 31 * result + down;
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Rect{" +
+                "left=" + left +
+                ", right=" + right +
+                ", up=" + up +
+                ", down=" + down +
+                '}';
+    }
 }

@@ -1,21 +1,21 @@
 package com.github.vfyjxf.justenoughgraphs.utils;
 
-import org.eclipse.elk.graph.ElkNode;
+import org.eclipse.elk.graph.ElkShape;
 
 public class BoundChecker {
 
-    public static boolean checkOver(int x, int y, int width, int height, int mouseX, int mouseY) {
+    public static boolean checkOver(int x, int y, int width, int height, double mouseX, double mouseY) {
         return mouseX >= x &&
                 mouseX <= x + width &&
                 mouseY >= y &&
                 mouseY <= y + height;
     }
 
-    public static boolean checkOver(ElkNode node, double mouseX, double mouseY) {
-        return mouseX >= node.getX() &&
-                mouseX <= node.getX() + node.getWidth() &&
-                mouseY >= node.getY() &&
-                mouseY <= node.getY() + node.getHeight();
+    public static boolean checkOver(ElkShape shape, double mouseX, double mouseY) {
+        return mouseX >= shape.getX() &&
+                mouseX <= shape.getX() + shape.getWidth() &&
+                mouseY >= shape.getY() &&
+                mouseY <= shape.getY() + shape.getHeight();
     }
 
     public static boolean checkOver(Rect bound, double mouseX, double mouseY) {
@@ -32,11 +32,11 @@ public class BoundChecker {
                 bound1.down == bound2.down;
     }
 
-    public static boolean matches(ElkNode node1, ElkNode node2) {
-        return node1.getX() == node2.getX() &&
-                node1.getY() == node2.getY() &&
-                node1.getWidth() == node2.getWidth() &&
-                node1.getHeight() == node2.getHeight();
+    public static boolean matches(ElkShape shape1, ElkShape shape2) {
+        return shape1.getX() == shape2.getX() &&
+                shape1.getY() == shape2.getY() &&
+                shape1.getWidth() == shape2.getWidth() &&
+                shape1.getHeight() == shape2.getHeight();
     }
 
 

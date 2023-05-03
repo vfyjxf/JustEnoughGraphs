@@ -3,6 +3,7 @@ package com.github.vfyjxf.justenoughgraphs.api.recipe;
 import com.github.vfyjxf.justenoughgraphs.api.content.IContent;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -16,7 +17,7 @@ public interface IRecipeLooker {
     /**
      * Look for recipes that can produce the given result.
      */
-    <T> Map<RecipeType<?>, Collection<?>> lookForRecipes(IContent<T> result);
+    <T> Map<RecipeType<?>, List<?>> lookForRecipes(IContent<T> result);
 
     /**
      * Returns a possible recipe of any type
@@ -31,7 +32,7 @@ public interface IRecipeLooker {
                 .findAny();
     }
 
-    <T> Map<RecipeType<?>, Collection<?>> lookForRecipesByInput(IContent<T> input);
+    <T> Map<RecipeType<?>, List<?>> lookForRecipesByInput(IContent<T> input);
 
     default <T> Optional<?> lookForRecipeByInput(IContent<T> input) {
         return lookForRecipesByInput(input)

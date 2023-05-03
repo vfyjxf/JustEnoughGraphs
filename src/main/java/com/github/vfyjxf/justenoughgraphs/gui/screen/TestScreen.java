@@ -1,8 +1,7 @@
 package com.github.vfyjxf.justenoughgraphs.gui.screen;
 
-import com.github.vfyjxf.justenoughgraphs.gui.factories.SimpleComponentFactory;
-import com.github.vfyjxf.justenoughgraphs.helper.DrawHelper;
 import com.github.vfyjxf.justenoughgraphs.helper.ElkHelper;
+import com.github.vfyjxf.justenoughgraphs.helper.RenderHelper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.screens.Screen;
 import org.eclipse.elk.alg.layered.options.LayeredOptions;
@@ -18,10 +17,11 @@ import org.eclipse.elk.graph.json.ElkGraphJson;
 import org.eclipse.elk.graph.util.ElkGraphUtil;
 
 import java.awt.*;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public class TestScreen extends ModularScreen {
 
@@ -34,7 +34,6 @@ public class TestScreen extends ModularScreen {
     private final ElkNode elkGraph;
 
     public TestScreen() {
-        super(new SimpleComponentFactory());
         this.elkGraph = ElkGraphUtil.createGraph();
         elkGraph.setLocation(80, 50);
         ElkNode inputNodes = ElkGraphUtil.createNode(elkGraph);
@@ -78,9 +77,6 @@ public class TestScreen extends ModularScreen {
     @Override
     public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
         this.renderDirtBackground(0);
-        Spliterator<ElkNode> spliterator = Spliterators.spliteratorUnknownSize(
-                ElkHelper.getAllElkNodes(elkGraph), Spliterator.NONNULL);
-        Stream<ElkNode> stream = StreamSupport.stream(spliterator, false);
         //渲染node,填充为白色边框,使用vLine和hLine
 //        List<ElkNode> nodes = stream.toList();
         renderNode(poseStack, elkGraph);
@@ -95,16 +91,15 @@ public class TestScreen extends ModularScreen {
         }
         Set<ElkPort> ports = new HashSet<>();
         getPorts(elkGraph, ports);
-        //以白色点的形式渲染port
-        for (ElkPort port : ports) {
-
-            KVector abs = ElkUtil.absolutePosition(port);
-            poseStack.pushPose();
-            {
-                DrawHelper.drawSolidRect(poseStack, (int) abs.x, (int) abs.y - 2, 5, 5, 0xFF000000);
-            }
-            poseStack.popPose();
-        }
+//        for (ElkPort port : ports) {
+//
+//            KVector abs = ElkUtil.absolutePosition(port);
+//            poseStack.pushPose();
+//            {
+//                RenderHelper.drawSolidRect(poseStack, (int) abs.x, (int) abs.y - 2, 5, 5, 0xFF000000);
+//            }
+//            poseStack.popPose();
+//        }
 
 //        int color = LINE_COLOR.getRGB();
 //        for (ElkEdge elkEdge : StreamSupport.stream(Spliterators.spliteratorUnknownSize(
@@ -152,12 +147,12 @@ public class TestScreen extends ModularScreen {
             int y1 = (int) section.getStartY();
 
             for (ElkBendPoint pt : points) {
-                DrawHelper.drawLine(poseStack, x1, y1, ((int) pt.getX()), ((int) pt.getY()), color, 0.4f);
+                RenderHelper.drawLine(poseStack, x1, y1, ((int) pt.getX()), ((int) pt.getY()), color, 2.0F);
                 x1 = (int) pt.getX();
                 y1 = (int) pt.getY();
             }
 
-            DrawHelper.drawLine(poseStack, x1, y1, (int) section.getEndX(), (int) section.getEndY(), color, 0.4f);
+            RenderHelper.drawLine(poseStack, x1, y1, (int) section.getEndX(), (int) section.getEndY(), color, 2.0F);
         }
 
     }

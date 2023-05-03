@@ -12,7 +12,24 @@ import java.util.stream.Collectors;
 
 public interface IContentRenderer<T> {
 
+    /**
+     * @param poseStack a PoseStack
+     * @param content   the content to render
+     */
     void render(PoseStack poseStack, T content);
+
+    /**
+     * Normally, for Content such as ItemStack,
+     * their internal representation should not set the count,
+     * but should use IContent#getAmount to allow JEGh to render a simplified amount.
+     */
+    default void render(PoseStack poseStack, IContent<T> content) {
+        render(poseStack, content.getContent());
+    }
+
+    default void renderTag(PoseStack poseStack, ITagContent<T, ?> tag) {
+
+    }
 
     String getDisplayName(T content);
 

@@ -1,7 +1,7 @@
 package com.github.vfyjxf.justenoughgraphs.gui;
 
-import com.github.vfyjxf.justenoughgraphs.gui.screen.RecipeTreeScreen;
-import com.github.vfyjxf.justenoughgraphs.mixin.RecipesGuiAccessor;
+import com.github.vfyjxf.justenoughgraphs.gui.screen.recipe.tree.RecipeTreeScreen;
+import com.github.vfyjxf.justenoughgraphs.mixin.jei.RecipesGuiAccessor;
 import mezz.jei.api.gui.IRecipeLayoutDrawable;
 import mezz.jei.gui.recipes.RecipesGui;
 import net.minecraft.client.Minecraft;
@@ -30,12 +30,13 @@ public class JeiGuiHooker {
             openTreeButtons.clear();
             for (IRecipeLayoutDrawable<?> recipeLayout : recipeLayouts) {
                 Rect2i buttonArea = recipeLayout.getRecipeTransferButtonArea();
-                Button openTreeButton = new Button(buttonArea.getX() + 16, buttonArea.getY() + 16,
-                        buttonArea.getWidth(), buttonArea.getHeight(),
+                Button openTreeButton = new Button(
+                        buttonArea.getX() + 16,
+                        buttonArea.getY() + 8,
+                        buttonArea.getWidth(),
+                        buttonArea.getHeight(),
                         Component.empty(),
-                        button -> {
-                            Minecraft.getInstance().setScreen(RecipeTreeScreen.openTest(recipeLayout.getRecipe()));
-                        });
+                        button -> Minecraft.getInstance().setScreen(RecipeTreeScreen.openTest(recipeLayout.getRecipe())));
                 event.getScreen().renderables.add(openTreeButton);
                 openTreeButtons.add(openTreeButton);
             }

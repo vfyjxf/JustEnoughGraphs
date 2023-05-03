@@ -2,9 +2,10 @@ package com.github.vfyjxf.justenoughgraphs.content;
 
 import com.github.vfyjxf.justenoughgraphs.api.content.ContentType;
 import com.github.vfyjxf.justenoughgraphs.api.content.ContentTypes;
-import com.github.vfyjxf.justenoughgraphs.api.content.IDescriptiveContent;
+import com.github.vfyjxf.justenoughgraphs.api.content.INumericalContent;
+import com.github.vfyjxf.justenoughgraphs.helper.TranslationHelper;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,42 +13,34 @@ import java.util.List;
 /**
  * Unit: game tick.
  */
-public class TimeContent implements IDescriptiveContent<Long> {
+public class TimeContent extends NumericalContent<Long> {
 
-    private final Long content;
+    private final List<Component> descriptions;
 
     public TimeContent(Long content) {
-        this.content = content;
+        super(content);
+        Component description = TranslationHelper.translatable("jegh.content.time.tick.cost.description", content);
+        descriptions = Collections.singletonList(description);
     }
 
     @Override
     public ContentType<Long> getType() {
-        return ContentTypes.DESCRIPTIVE_TIME_LONG;
+        return ContentTypes.NUMERICAL_TIME;
     }
 
     @Override
-    public ResourceLocation getTypeIdentifier() {
-        return ContentTypes.DESCRIPTIVE_TIME_LONG.getIdentifier();
+    public List<Component> getDescrictions() {
+        return descriptions;
     }
 
-    @Override
     public List<Component> getDescription() {
-        Component description = Component.translatable("jegh.content.time.cost.description", content);
+        Component description = TranslationHelper.translatable("jegh.content.time.cost.description", content);
         return Collections.singletonList(description);
     }
 
     @Override
-    public Long getContent() {
-        return content;
+    public int compareTo(@NotNull INumericalContent<Long> o) {
+        return Long.compare(content, o.getContent());
     }
 
-    @Override
-    public long getAmount() {
-        return content;
-    }
-
-    @Override
-    public float getChance() {
-        return 1.0f;
-    }
 }

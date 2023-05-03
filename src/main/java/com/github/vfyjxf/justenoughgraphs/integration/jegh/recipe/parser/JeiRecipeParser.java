@@ -4,19 +4,18 @@ import com.github.vfyjxf.justenoughgraphs.api.IRegistryManager;
 import com.github.vfyjxf.justenoughgraphs.api.content.ContentType;
 import com.github.vfyjxf.justenoughgraphs.api.content.IContent;
 import com.github.vfyjxf.justenoughgraphs.api.content.IContentHelper;
-import com.github.vfyjxf.justenoughgraphs.api.content.IItemTagContent;
+import com.github.vfyjxf.justenoughgraphs.api.content.ITagContent;
 import com.github.vfyjxf.justenoughgraphs.api.recipe.IUniversalRecipeParser;
 import com.github.vfyjxf.justenoughgraphs.api.recipe.IngredientType;
 import com.github.vfyjxf.justenoughgraphs.api.recipe.RecipeType;
 import com.github.vfyjxf.justenoughgraphs.integration.jei.JEGhPlugin;
-import com.github.vfyjxf.justenoughgraphs.mixin.RecipeLayoutBuilderAccessor;
-import com.github.vfyjxf.justenoughgraphs.mixin.RecipeManagerAccessor;
-import com.github.vfyjxf.justenoughgraphs.mixin.RecipeManagerInternalAccessor;
+import com.github.vfyjxf.justenoughgraphs.mixin.jei.RecipeLayoutBuilderAccessor;
+import com.github.vfyjxf.justenoughgraphs.mixin.jei.RecipeManagerAccessor;
+import com.github.vfyjxf.justenoughgraphs.mixin.jei.RecipeManagerInternalAccessor;
 import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.recipe.IRecipeCatalystLookup;
 import mezz.jei.api.recipe.IRecipeManager;
-import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.library.gui.recipes.layout.builder.IRecipeLayoutSlotSource;
 import mezz.jei.library.ingredients.IIngredientSupplier;
@@ -25,6 +24,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
+import org.jooq.lambda.Seq;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -61,7 +61,7 @@ public class JeiRecipeParser implements IUniversalRecipeParser {
             return Collections.emptyMap();
         Stream<IRecipeLayoutSlotSource> slotStream = ((RecipeLayoutBuilderAccessor) pair.getRight()).callSlotStream();
         Map<IngredientType, List<IContent<?>>> ingredients = slotStream.collect(Collectors.groupingBy(
-                slotSource -> mapTo(slotSource.getRole()),
+                slotSource -> IngredientType.fromJei(slotSource.getRole()),
                 () -> new EnumMap<>(IngredientType.class),
                 Collectors.mapping(JeiRecipeParser::covertToContent, Collectors.toList())));
         if (pair.getLeft() != null) {
@@ -79,7 +79,8 @@ public class JeiRecipeParser implements IUniversalRecipeParser {
     @Nullable
     private static <T> IContent<?> covertToContent(IRecipeLayoutSlotSource slotSource) {
         IRegistryManager registryManager = IRegistryManager.getInstance();
-        List<IIngredientType<?>> allTypes = slotSource.getIngredientTypes().toList();
+        List<IIngredientType<?>> allTypes = slotSource.getIngredientTypes().distinct().toList();
+        if (allTypes.isEmpty()) return null;
         boolean singleType = allTypes.size() == 1;
         if (singleType) {
             IIngredientType<T> firstType = (IIngredientType<T>) allTypes.get(0);
@@ -87,24 +88,26 @@ public class JeiRecipeParser implements IUniversalRecipeParser {
             List<T> allIngredients = slotSource.getIngredients(firstType).toList();
             return convertSingleType(registryManager, firstType, allIngredients);
         } else {
-
+            List<?> allContent = Seq.seq(allTypes).flatMap(slotSource::getIngredients).toList();
+            return registryManager.createCompositeContent(allContent, 1, 1.0f);
         }
-        return null;
     }
 
     @Nullable
     private static <T> IContent<?> parseCatalysts(mezz.jei.api.recipe.RecipeType<T> recipeType) {
         IRecipeCatalystLookup lookup = JEGhPlugin.getRecipeManager().createRecipeCatalystLookup(recipeType);
-        List<? extends IIngredientType<?>> allTypes = lookup.get().map(ITypedIngredient::getType).toList();
+        List<? extends IIngredientType<?>> allTypes = lookup.get().map(ITypedIngredient::getType).distinct().toList();
+        if (allTypes.isEmpty()) return null;
         boolean singleType = allTypes.size() == 1;
         if (singleType) {
             IIngredientType<T> firstType = (IIngredientType<T>) allTypes.get(0);
             List<T> allIngredients = lookup.get(firstType).toList();
             return convertSingleType(IRegistryManager.getInstance(), firstType, allIngredients);
         } else {
-
+            IRegistryManager registryManager = IRegistryManager.getInstance();
+            List<?> allContent = Seq.seq(allTypes).flatMap(lookup::get).toList();
+            return registryManager.createCompositeContent(allContent, 1, 1.0f);
         }
-        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -118,11 +121,11 @@ public class JeiRecipeParser implements IUniversalRecipeParser {
             amount = contentHelper.getAmount(firstIngredient);
             return registryManager.createContent(firstIngredient, amount);
         } else {
-            amount = allIngredients.stream().findFirst().map(contentHelper::getAmount).orElse(-1L);
+            amount = allIngredients.stream().findFirst().map(contentHelper::getAmount).orElse(0L);
             Optional<ResourceLocation> maybeTag = contentHelper.getTags(allIngredients).stream().findFirst();
             ContentType<T> contentType = (ContentType<T>) registryManager.getContentType(type.getIngredientClass());
-            IItemTagContent tagContent = maybeTag.map(tag ->
-                    registryManager.createItemTagContent(tag, amount, 1.0f)
+            ITagContent<T, ?> tagContent = maybeTag.map(tag ->
+                    registryManager.createTagContent(contentType, tag, amount, 1.0f)
             ).orElse(null);
             if (tagContent != null) {
                 return tagContent;
@@ -132,15 +135,6 @@ public class JeiRecipeParser implements IUniversalRecipeParser {
                 .map(ingredient -> registryManager.createContent(ingredient, amount))
                 .toList();
         return registryManager.createListContent(contents, amount, 1.0f);
-    }
-
-    private static IngredientType mapTo(RecipeIngredientRole role) {
-        return switch (role) {
-            case INPUT -> IngredientType.INPUT;
-            case OUTPUT -> IngredientType.OUTPUT;
-            case CATALYST -> IngredientType.CATALYST;
-            case RENDER_ONLY -> IngredientType.OTHER;
-        };
     }
 
     private static <T> Pair<mezz.jei.api.recipe.RecipeType<T>, IIngredientSupplier> getIngredientSupplier(T recipe) {

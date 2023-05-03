@@ -16,10 +16,10 @@ public interface IInputContext {
 
     int getModifiers();
 
-    InputTypes getClickState();
+    InputType getClickState();
 
     default boolean isSimulate() {
-        return getClickState() == InputTypes.SIMULATE;
+        return getClickState() == InputType.SIMULATE;
     }
 
     default boolean isMouse() {

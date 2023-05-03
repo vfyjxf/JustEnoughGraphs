@@ -1,7 +1,9 @@
 package com.github.vfyjxf.justenoughgraphs.content.renderer;
 
+import com.github.vfyjxf.justenoughgraphs.api.content.IContent;
 import com.github.vfyjxf.justenoughgraphs.api.content.IContentRenderer;
-import com.github.vfyjxf.justenoughgraphs.helper.DrawHelper;
+import com.github.vfyjxf.justenoughgraphs.api.content.ITagContent;
+import com.github.vfyjxf.justenoughgraphs.helper.RenderHelper;
 import com.github.vfyjxf.justenoughgraphs.helper.TranslationHelper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
@@ -30,7 +32,20 @@ public class FluidStackContentRenderer implements IContentRenderer<FluidStack> {
 
     @Override
     public void render(PoseStack poseStack, FluidStack content) {
-        DrawHelper.drawFluidForGui(poseStack, content, 1000, 0, 0, 16, 16);
+        if (content.isEmpty()) return;
+        RenderHelper.drawFluidForGui(poseStack, content, 1000, 0, 0, 16, 16);
+    }
+
+    @Override
+    public void render(PoseStack poseStack, IContent<FluidStack> content) {
+        IContentRenderer.super.render(poseStack, content);
+    }
+
+    @Override
+    public void renderTag(PoseStack poseStack, ITagContent<FluidStack, ?> tag) {
+        FluidStack content = tag.getContent();
+        if (content.isEmpty()) return;
+        RenderHelper.drawFluidForGui(poseStack, content, 1000, 0, 0, 16, 16);
     }
 
     @Override

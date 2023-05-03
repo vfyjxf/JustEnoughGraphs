@@ -1,7 +1,7 @@
 package com.github.vfyjxf.justenoughgraphs.gui.input;
 
 import com.github.vfyjxf.justenoughgraphs.api.gui.input.IInputContext;
-import com.github.vfyjxf.justenoughgraphs.api.gui.input.InputTypes;
+import com.github.vfyjxf.justenoughgraphs.api.gui.input.InputType;
 import com.github.vfyjxf.justenoughgraphs.utils.InputHelper;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.SharedConstants;
@@ -9,12 +9,12 @@ import net.minecraft.client.KeyMapping;
 
 public class InputContext implements IInputContext {
 
-    public static InputContext fromVanilla(int keyCode, int scanCode, int modifiers, InputTypes inputType) {
+    public static InputContext fromVanilla(int keyCode, int scanCode, int modifiers, InputType inputType) {
         InputConstants.Key key = InputConstants.getKey(keyCode, scanCode);
         return new InputContext(key, InputHelper.getMouseX(), InputHelper.getMouseY(), modifiers, inputType);
     }
 
-    public static InputContext fromVanilla(double mouseX, double mouseY, int mouseButton, InputTypes inputType) {
+    public static InputContext fromVanilla(double mouseX, double mouseY, int mouseButton, InputType inputType) {
         if (mouseButton < 0) {
             return null;
         }
@@ -27,9 +27,9 @@ public class InputContext implements IInputContext {
     private final double mouseX;
     private final double mouseY;
     private final int modifiers;
-    private final InputTypes clickState;
+    private final InputType clickState;
 
-    public InputContext(InputConstants.Key key, double mouseX, double mouseY, int modifiers, InputTypes clickState) {
+    public InputContext(InputConstants.Key key, double mouseX, double mouseY, int modifiers, InputType clickState) {
         this.key = key;
         this.mouseX = mouseX;
         this.mouseY = mouseY;
@@ -58,7 +58,7 @@ public class InputContext implements IInputContext {
     }
 
     @Override
-    public InputTypes getClickState() {
+    public InputType getClickState() {
         return clickState;
     }
 

@@ -1,5 +1,7 @@
 package com.github.vfyjxf.justenoughgraphs.api.recipe;
 
+import mezz.jei.api.recipe.RecipeIngredientRole;
+
 public enum IngredientType {
 
     /**
@@ -17,6 +19,24 @@ public enum IngredientType {
     /**
      * The ingredient is used as condition.
      */
-    OTHER
+    OTHER;
+
+    public static RecipeIngredientRole toJei(IngredientType type) {
+        return switch (type) {
+            case INPUT -> RecipeIngredientRole.INPUT;
+            case OUTPUT -> RecipeIngredientRole.OUTPUT;
+            case CATALYST -> RecipeIngredientRole.CATALYST;
+            default -> RecipeIngredientRole.RENDER_ONLY;
+        };
+    }
+
+    public static IngredientType fromJei(RecipeIngredientRole role) {
+        return switch (role) {
+            case INPUT -> INPUT;
+            case OUTPUT -> OUTPUT;
+            case CATALYST -> CATALYST;
+            default -> OTHER;
+        };
+    }
 
 }

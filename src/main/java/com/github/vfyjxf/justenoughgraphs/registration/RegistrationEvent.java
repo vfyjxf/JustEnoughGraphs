@@ -7,9 +7,8 @@ public class RegistrationEvent extends Event {
 
     private final RegistryManagerBuilder registration;
 
-    public RegistrationEvent() {
-        this.registration = new RegistryManagerBuilder();
-        registration.build();
+    public RegistrationEvent(RegistryManagerBuilder registration) {
+        this.registration = registration;
     }
 
     public IRegistration getRegistration() {

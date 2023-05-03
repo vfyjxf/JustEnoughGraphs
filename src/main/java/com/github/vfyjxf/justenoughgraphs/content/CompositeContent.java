@@ -5,6 +5,7 @@ import com.github.vfyjxf.justenoughgraphs.api.content.ContentType;
 import com.github.vfyjxf.justenoughgraphs.api.content.ICompositeContent;
 import com.github.vfyjxf.justenoughgraphs.api.content.IContent;
 import com.github.vfyjxf.justenoughgraphs.utils.CycleTimer;
+import com.github.vfyjxf.justenoughgraphs.utils.ErrorChecker;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -12,9 +13,9 @@ import java.util.stream.Collectors;
 public class CompositeContent implements ICompositeContent {
 
     private final List<IContent<?>> contents;
-    private final long amount;
-    private final float chance;
     private final CycleTimer timer = new CycleTimer(20);
+    private long amount;
+    private float chance;
 
     public CompositeContent(Collection<?> contents, long amount, float chance) {
         this.amount = amount;
@@ -51,8 +52,19 @@ public class CompositeContent implements ICompositeContent {
     }
 
     @Override
+    public void setAmount(long amount) {
+        this.amount = amount;
+    }
+
+    @Override
     public float getChance() {
         return chance;
+    }
+
+    @Override
+    public void setChance(float chance) {
+        ErrorChecker.checkRangeClosed(chance, 0, 1);
+        this.chance = chance;
     }
 
     @Override

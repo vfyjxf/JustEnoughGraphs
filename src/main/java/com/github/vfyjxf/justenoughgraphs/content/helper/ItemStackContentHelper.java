@@ -77,23 +77,21 @@ public class ItemStackContentHelper implements IContentHelper<ItemStack> {
     }
 
     @Override
-    public ItemStack merge(ItemStack first, ItemStack second) {
+    public boolean merge(ItemStack first, ItemStack second) {
         if (ItemStack.isSameItemSameTags(first, second)) {
-            ItemStack merged = first.copy();
-            merged.grow(second.getCount());
-            return merged;
+            first.grow(second.getCount());
+            return true;
         }
-        return null;
+        return false;
     }
 
     @Override
-    public ItemStack mergeFuzzy(ItemStack first, ItemStack second) {
+    public boolean mergeFuzzy(ItemStack first, ItemStack second) {
         if (ItemStack.isSameIgnoreDurability(first, second)) {
-            ItemStack merged = first.copy();
-            merged.grow(second.getCount());
-            return merged;
+            first.grow(second.getCount());
+            return true;
         }
-        return null;
+        return false;
     }
 
     @Override

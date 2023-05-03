@@ -4,9 +4,9 @@ import com.github.vfyjxf.justenoughgraphs.api.IRegistryManager;
 import com.github.vfyjxf.justenoughgraphs.api.content.ContentType;
 import com.github.vfyjxf.justenoughgraphs.api.content.IContent;
 import com.github.vfyjxf.justenoughgraphs.api.content.IContentHelper;
-import com.github.vfyjxf.justenoughgraphs.api.content.IItemTagContent;
+import com.github.vfyjxf.justenoughgraphs.api.content.ITagContent;
+import com.github.vfyjxf.justenoughgraphs.api.recipe.IngredientType;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -17,91 +17,93 @@ import java.util.stream.Collectors;
 
 public class ContentMerger {
 
+    public static Map<IngredientType, List<IContent<?>>> merge(Map<IngredientType, List<IContent<?>>> contents) {
+        return contents.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> mergeSameType(entry.getValue())));
+    }
 
     public static List<IContent<?>> mergeSameType(List<IContent<?>> contents) {
         return mergeHelper(contents);
     }
 
-    @SuppressWarnings({"unchecked"})
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private static <T> List<IContent<?>> mergeHelper(List<IContent<?>> contents) {
-        Map<ContentType<?>, List<IContent<?>>> group = new HashMap<>();
-        List<IItemTagContent> tagContents = new ArrayList<>();
+        Map<ContentType<?>, List<IContent<T>>> normalContents = new HashMap<>();
+        Map<ContentType<T>, List<ITagContent<T, ?>>> tagContents = new HashMap<>();
         for (IContent<?> content : contents) {
-            if (content instanceof IItemTagContent) {
-                tagContents.add((IItemTagContent) content);
+            if (content instanceof ITagContent tag) {
+                tagContents.computeIfAbsent(tag.getTagType(), key -> new ArrayList<>()).add(tag);
                 continue;
             }
-            group.computeIfAbsent(content.getType(), k -> new ArrayList<>()).add(content);
+            normalContents.computeIfAbsent(content.getType(), k -> new ArrayList<>())
+                    .add((IContent<T>) content);
         }
         List<IContent<?>> mergedContents = new ArrayList<>();
-        for (var entry : group.entrySet()) {
-            List<IContent<T>> contentList = (List) entry.getValue();
-            mergedContents.addAll(merge(contentList));
-        }
-        mergedContents.addAll(mergeTag(tagContents));
+        normalContents.forEach((key, value) -> mergedContents.addAll(merge(value)));
+        tagContents.forEach((key, contentList) -> mergedContents.addAll(mergeTags((contentList))));
 
         return mergedContents;
     }
 
     public static <T> List<IContent<T>> merge(List<IContent<T>> contents) {
-        List<ContentPair<T>> mergedContents = new ArrayList<>();
+        List<IContent<T>> mergedContents = new ArrayList<>();
         IRegistryManager registryManager = IRegistryManager.getInstance();
         IContentHelper<T> contentHelper = contents.stream().findFirst()
                 .map(IContent::getType)
                 .map(registryManager::getContentHelper)
                 .orElseThrow(() -> new IllegalArgumentException("No content helper found"));
-        for (IContent<T> content : contents) {
+        for (IContent<T> current : contents) {
             boolean merged = false;
-            for (ContentPair<T> mergedContent : mergedContents) {
-                T maybeMerged = checkAndMerge(mergedContent, content, contentHelper);
-                if (maybeMerged != null) {
-                    merged = true;
-                    mergedContent.setContent(maybeMerged);
-                    break;
-                }
-            }
-            if (!merged) {
-                mergedContents.add(ContentPair.of(content.getContent(), content.getChance()));
-            }
-        }
-        return mergedContents.stream()
-                .map(pair -> registryManager.createContent(pair.getContent(), contentHelper.getAmount(pair.getContent()), pair.getChance()))
-                .collect(Collectors.toList());
-    }
-
-    public static List<IItemTagContent> mergeTag(List<IItemTagContent> contents) {
-        List<EditableItemTagPair> mergedContents = new ArrayList<>();
-        IRegistryManager registryManager = IRegistryManager.getInstance();
-        for (IItemTagContent content : contents) {
-            boolean merged = false;
-            for (EditableItemTagPair mergedContent : mergedContents) {
-                if (mergedContent.getTag().equals(content.getTag())) {
-                    float minChance = Math.min(mergedContent.getChance(), content.getChance());
-                    mergedContent.setChance(minChance);
-                    mergedContent.addAmount(content.getAmount());
+            for (IContent<T> mergedContent : mergedContents) {
+                if (contentHelper.mergeContent(mergedContent, current)) {
                     merged = true;
                     break;
                 }
             }
             if (!merged) {
-                mergedContents.add(new EditableItemTagPair(content.getTag(), content.getAmount(), content.getChance()));
+                mergedContents.add(current);
             }
         }
-        return mergedContents.stream()
-                .map(pair -> registryManager.createItemTagContent(pair.getTag().location(), pair.getAmount(), pair.getChance()))
-                .collect(Collectors.toList());
+        return mergedContents;
     }
 
-    @Nullable
-    private static <T> T checkAndMerge(ContentPair<T> pair, IContent<T> second, IContentHelper<T> contentHelper) {
-        T first = pair.getContent();
-        T secondContent = second.getContent();
-        if (contentHelper.matchesFuzzy(first, secondContent)) {
-            boolean isFirstParent = pair.getChance() >= second.getChance();
-            return isFirstParent ? contentHelper.merge(first, secondContent) : contentHelper.merge(secondContent, first);
+    /**
+     * @param contents must be same type
+     * @return the merged contents
+     */
+    public static <T> List<ITagContent<T, ?>> mergeTags(List<ITagContent<T, ?>> contents) {
+        List<ITagContent<T, ?>> mergedContents = new ArrayList<>();
+
+        for (ITagContent<T, ?> current : contents) {
+            boolean found = false;
+            for (ITagContent<T, ?> mergedContent : mergedContents) {
+                if (mergeTag(mergedContent, current)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                mergedContents.add(current);
+            }
         }
-        return null;
+        return mergedContents;
     }
+
+    public static <STACK> boolean mergeTag(@Nullable ITagContent<STACK, ?> first, @Nullable ITagContent<STACK, ?> second) {
+        if (first == null || second == null) {
+            return false;
+        }
+        boolean matches = first.getTagType().equals(second.getTagType()) &&
+                first.getTag().equals(second.getTag()) &&
+                first.getChance() == second.getChance();
+        if (!matches) {
+            return false;
+        }
+        first.setAmount(first.getAmount() + second.getAmount());
+        return true;
+    }
+
 
     private static class ContentPair<T> {
         private T content;
@@ -133,22 +135,22 @@ public class ContentMerger {
         }
     }
 
-    private static class EditableItemTagPair {
-        private TagKey<Item> tag;
+    private static class EditableTagPair<T> {
+        private TagKey<T> tag;
         private long amount;
         private float chance;
 
-        public EditableItemTagPair(TagKey<Item> tag, long amount, float chance) {
+        public EditableTagPair(TagKey<T> tag, long amount, float chance) {
             this.tag = tag;
             this.amount = amount;
             this.chance = chance;
         }
 
-        public TagKey<Item> getTag() {
+        public TagKey<T> getTag() {
             return tag;
         }
 
-        public void setTag(TagKey<Item> tag) {
+        public void setTag(TagKey<T> tag) {
             this.tag = tag;
         }
 

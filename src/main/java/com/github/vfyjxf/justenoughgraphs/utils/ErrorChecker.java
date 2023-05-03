@@ -25,5 +25,43 @@ public class ErrorChecker {
         Preconditions.checkElementIndex(index, size);
     }
 
+    /**
+     * Checks the value whether in range [start, end).
+     */
+    public static void checkRange(int value, int start, int end) {
+        Preconditions.checkArgument(value >= start && value < end, "Value must be in range [%s,%s)", start, end);
+    }
+
+    public static void checkRange(int value, int size) {
+        checkRange(value, 0, size);
+    }
+
+    /**
+     * Checks the value whether in range [start, end].
+     */
+    public static void checkRangeClosed(int value, int start, int end) {
+        Preconditions.checkArgument(value >= start && value <= end, "Value must be in range [%s,%s]", start, end);
+    }
+
+    public static void checkRangeClosed(int value, int size) {
+        checkRangeClosed(value, 0, size);
+    }
+
+    public static void checkRange(double value, double start, double end) {
+        Preconditions.checkArgument(value >= start && value < end, "Value must be in range [%s,%s)", start, end);
+    }
+
+    public static void checkRange(double value, double size) {
+        checkRange(value, 0, size);
+    }
+
+    public static void checkRangeClosed(double value, double start, double end) {
+        Preconditions.checkArgument(value >= start && value <= end, "Value must be in range [%s,%s]", start, end);
+    }
+
+    public static void checkRangeClosed(double value, double size) {
+        checkRangeClosed(value, 0, size);
+    }
+
 
 }

@@ -64,7 +64,7 @@ public class FluidStackContentHelper implements IContentHelper<FluidStack> {
 
     @Override
     public boolean matches(FluidStack first, FluidStack second) {
-        return first.isFluidEqual(second);
+        return first.isFluidEqual(second) && FluidStack.areFluidStackTagsEqual(first, second);
     }
 
     @Override
@@ -73,23 +73,21 @@ public class FluidStackContentHelper implements IContentHelper<FluidStack> {
     }
 
     @Override
-    public FluidStack merge(FluidStack first, FluidStack second) {
+    public boolean merge(FluidStack first, FluidStack second) {
         if (matches(first, second)) {
-            FluidStack copy = first.copy();
-            copy.setAmount(first.getAmount() + second.getAmount());
-            return copy;
+            first.setAmount(first.getAmount() + second.getAmount());
+            return true;
         }
-        return null;
+        return false;
     }
 
     @Override
-    public FluidStack mergeFuzzy(FluidStack first, FluidStack second) {
+    public boolean mergeFuzzy(FluidStack first, FluidStack second) {
         if (matchesFuzzy(first, second)) {
-            FluidStack copy = first.copy();
-            copy.setAmount(first.getAmount() + second.getAmount());
-            return copy;
+            first.setAmount(first.getAmount() + second.getAmount());
+            return true;
         }
-        return null;
+        return false;
     }
 
     @Override

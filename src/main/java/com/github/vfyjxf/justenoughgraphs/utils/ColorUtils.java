@@ -8,6 +8,9 @@ package com.github.vfyjxf.justenoughgraphs.utils;
  */
 public class ColorUtils {
 
+    public static final int WHITE = 0xFFFFFFFF;
+    public static final int BLACK = 0xFF000000;
+
     public static int randomColor(int minR, int maxR, int minG, int maxG, int minB, int maxB) {
         return 0xff000000 |
                 ((minR + RandomUtils.nextInt(maxR + 1 - minR)) << 16) |

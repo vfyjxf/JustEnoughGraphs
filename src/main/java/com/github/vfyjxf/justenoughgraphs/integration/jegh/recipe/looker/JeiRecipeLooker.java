@@ -15,7 +15,10 @@ import mezz.jei.gui.ingredients.IngredientLookupState;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class JeiRecipeLooker implements IRecipeLooker {
@@ -28,16 +31,16 @@ public class JeiRecipeLooker implements IRecipeLooker {
     }
 
     @Override
-    public <T> Map<RecipeType<?>, Collection<?>> lookForRecipes(IContent<T> result) {
+    public <T> Map<RecipeType<?>, List<?>> lookForRecipes(IContent<T> result) {
         return lookHelper(result.getContent(), Collections.singletonList(RecipeIngredientRole.OUTPUT));
     }
 
     @Override
-    public <T> Map<RecipeType<?>, Collection<?>> lookForRecipesByInput(IContent<T> input) {
+    public <T> Map<RecipeType<?>, List<?>> lookForRecipesByInput(IContent<T> input) {
         return lookHelper(input.getContent(), List.of(RecipeIngredientRole.INPUT, RecipeIngredientRole.CATALYST));
     }
 
-    private static <T> Map<RecipeType<?>, Collection<?>> lookHelper(T focusValue, List<RecipeIngredientRole> roles) {
+    private static <T> Map<RecipeType<?>, List<?>> lookHelper(T focusValue, List<RecipeIngredientRole> roles) {
         IFocusFactory focusFactory = JEGhPlugin.getFocusFactory();
         IRecipeManager recipeManager = JEGhPlugin.getRecipeManager();
         IIngredientManager ingredientManager = JEGhPlugin.getIngredientManager();
@@ -52,7 +55,7 @@ public class JeiRecipeLooker implements IRecipeLooker {
             return Collections.emptyMap();
 
         IngredientLookupState state = IngredientLookupState.createWithFocus(recipeManager, focuses);
-        Map<RecipeType<?>, Collection<?>> recipeMap = new HashMap<>(state.getRecipeCategories().size() + 1);
+        Map<RecipeType<?>, List<?>> recipeMap = new HashMap<>(state.getRecipeCategories().size() + 1);
         @Unmodifiable List<IRecipeCategory<?>> recipeCategories = state.getRecipeCategories();
         for (int index = 0; index < recipeCategories.size(); index++) {
             IRecipeCategory<?> recipeCategory = recipeCategories.get(index);
@@ -61,10 +64,10 @@ public class JeiRecipeLooker implements IRecipeLooker {
         return recipeMap;
     }
 
-    private static <T> void lookByType(Map<RecipeType<?>, Collection<?>> recipeMap, IngredientLookupState state, IRecipeCategory<T> recipeCategory, int index) {
+    private static <T> void lookByType(Map<RecipeType<?>, List<?>> recipeMap, IngredientLookupState state, IRecipeCategory<T> recipeCategory, int index) {
         RecipeType<T> recipeType = RecipeHelper.toJeghType(recipeCategory.getRecipeType());
         state.setRecipeIndex(index);
-        Collection<T> focusedRecipes = (Collection<T>) state.getFocusedRecipes().getRecipes();
+        List<T> focusedRecipes = (List<T>) state.getFocusedRecipes().getRecipes();
         recipeMap.put(recipeType, focusedRecipes);
     }
 

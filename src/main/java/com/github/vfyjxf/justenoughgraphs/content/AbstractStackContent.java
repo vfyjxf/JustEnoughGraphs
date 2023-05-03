@@ -1,11 +1,12 @@
 package com.github.vfyjxf.justenoughgraphs.content;
 
 import com.github.vfyjxf.justenoughgraphs.api.content.IContent;
+import com.github.vfyjxf.justenoughgraphs.utils.ErrorChecker;
 
 public abstract class AbstractStackContent<T> implements IContent<T> {
     private final T content;
-    private final long amount;
-    private final float chance;
+    private long amount;
+    private float chance = 1.0f;
 
     public AbstractStackContent(T content, long amount, float chance) {
         this.content = content;
@@ -16,7 +17,6 @@ public abstract class AbstractStackContent<T> implements IContent<T> {
     public AbstractStackContent(T content, long amount) {
         this.content = content;
         this.amount = amount;
-        this.chance = 1.0f;
     }
 
     @Override
@@ -30,7 +30,18 @@ public abstract class AbstractStackContent<T> implements IContent<T> {
     }
 
     @Override
+    public void setAmount(long amount) {
+        this.amount = amount;
+    }
+
+    @Override
     public float getChance() {
         return chance;
+    }
+
+    @Override
+    public void setChance(float chance) {
+        ErrorChecker.checkRangeClosed(chance, 0, 1);
+        this.chance = chance;
     }
 }

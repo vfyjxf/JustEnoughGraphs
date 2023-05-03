@@ -7,6 +7,9 @@ import com.github.vfyjxf.justenoughgraphs.api.recipe.IUniversalRecipeParser;
 import com.github.vfyjxf.justenoughgraphs.api.recipe.RecipeType;
 import com.github.vfyjxf.justenoughgraphs.registration.RegistryManager;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,21 +30,28 @@ public interface IRegistryManager {
 
     <T> IContent<T> createContent(T content, long amount, float chance);
 
-    IItemTagContent createItemTagContent(ResourceLocation tag, long amount, float chance);
+    default <T> IContent<T> createContent(T content, long amount) {
+        return createContent(content, amount, 1.0f);
+    }
+
+    @Nullable <STACK, VALUE> ITagContent<STACK, VALUE> createTagContent(ContentType<STACK> stackType, ResourceLocation tag, long amount, float chance);
+
+    @Nullable
+    default ITagContent<ItemStack, Item> createItemTagContent(ResourceLocation tag, long amount, float chance) {
+        return createTagContent(ContentTypes.ITEM_STACK, tag, amount, chance);
+    }
+
+    <T> INumericalContent<T> createNumericalContent(T content, float chance);
 
     <T> IListContent<T> createListContent(List<IContent<T>> contents, long amount, float chance);
 
     ICompositeContent createCompositeContent(Collection<?> contents, long amount, float chance);
 
-    default <T> IContent<T> createContent(T content, long amount) {
-        return createContent(content, amount, 1.0f);
-    }
-
-    <T> IDescriptiveContent<T> createDescriptive(ResourceLocation identifier, T content);
-
     <T> ContentType<T> getContentType(Class<T> typeClass);
 
     <T> Optional<ContentType<T>> getContentType(ResourceLocation identifier);
+
+    <T> Optional<ContentType<T>> getTagType(ResourceLocation identifier);
 
     /**
      * Get the content type of the given content.
@@ -66,6 +76,8 @@ public interface IRegistryManager {
     }
 
     <T> IContentRenderer<T> getContentRenderer(Class<T> typeClass);
+
+    <T> IContentRenderer<ITagContent<T, ?>> getTagRenderer(ContentType<T> stackType);
 
     <T> RecipeType<T> getRecipeType(T recipe);
 
