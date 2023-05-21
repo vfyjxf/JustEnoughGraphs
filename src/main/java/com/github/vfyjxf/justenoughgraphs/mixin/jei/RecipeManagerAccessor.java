@@ -5,7 +5,7 @@ import mezz.jei.library.recipes.RecipeManagerInternal;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(RecipeManager.class)
+@Mixin(value = RecipeManager.class, remap = false)
 public interface RecipeManagerAccessor {
     @Accessor
     RecipeManagerInternal getInternal();

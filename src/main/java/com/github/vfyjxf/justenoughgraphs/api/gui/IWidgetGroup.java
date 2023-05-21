@@ -9,16 +9,22 @@ import java.util.Optional;
 
 public interface IWidgetGroup extends IGuiWidget {
 
+    boolean isDynamicSize();
+
+    IWidgetGroup setDynamicSize(boolean isDynamicSize);
+
     @Override
     IWidgetGroup setPos(int x, int y);
 
     @Override
-    IWidgetGroup resize(int width, int height);
+    IWidgetGroup setSize(int width, int height);
 
     @Override
     IWidgetGroup setBounds(int x, int y, int width, int height);
 
-    void addWidget(IGuiWidget widget);
+    IWidgetGroup addWidget(IGuiWidget widget);
+
+    IWidgetGroup insertWidget(int index, IGuiWidget widget);
 
     boolean contains(IGuiWidget widget);
 
@@ -90,6 +96,13 @@ public interface IWidgetGroup extends IGuiWidget {
             }
         }
         poseStack.popPose();
+    }
+
+    /**
+     * layout all widgets in this group.
+     */
+    default IWidgetGroup layout() {
+        return this;
     }
 
     default IWidgetGroup addGroupChangedListener(IGroupChangedListener listener) {

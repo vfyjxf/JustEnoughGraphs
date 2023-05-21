@@ -30,8 +30,8 @@ public class ButtonWidget extends Widget {
     }
 
     @Override
-    public ButtonWidget resize(int width, int height) {
-        super.resize(width, height);
+    public ButtonWidget setSize(int width, int height) {
+        super.setSize(width, height);
         return this;
     }
 

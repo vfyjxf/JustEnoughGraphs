@@ -71,8 +71,8 @@ public class LayoutableWidgetGroup extends WidgetGroup implements ILayoutableGro
     }
 
     @Override
-    public ILayoutableGroup resize(int width, int height) {
-        super.resize(width, height);
+    public ILayoutableGroup setSize(int width, int height) {
+        super.setSize(width, height);
         getInternal().setWidth(width);
         getInternal().setHeight(height);
         return this;
@@ -81,14 +81,14 @@ public class LayoutableWidgetGroup extends WidgetGroup implements ILayoutableGro
     @Override
     public ILayoutableGroup setBounds(int x, int y, int width, int height) {
         setPos(x, y);
-        resize(width, height);
+        setSize(width, height);
         return this;
     }
 
     @Override
-    public void addWidget(IGuiWidget widget) {
+    public IWidgetGroup addWidget(IGuiWidget widget) {
         if (!this.addWidget(children.size(), widget))
-            return;
+            return this;
 
         ElkNode child;
         if (widget instanceof ILayoutableGroup layoutableGroup) {
@@ -101,6 +101,7 @@ public class LayoutableWidgetGroup extends WidgetGroup implements ILayoutableGro
         child.setWidth(widget.getWidth());
         child.setHeight(widget.getHeight());
         nodeMap.put(widget, child);
+        return this;
     }
 
     @Override
@@ -150,7 +151,7 @@ public class LayoutableWidgetGroup extends WidgetGroup implements ILayoutableGro
         }
         nodeMap.forEach((component, node) -> {
             component.setPos((int) node.getX(), (int) node.getY());
-            component.resize((int) node.getWidth(), (int) node.getHeight());
+            component.setSize((int) node.getWidth(), (int) node.getHeight());
         });
     }
 

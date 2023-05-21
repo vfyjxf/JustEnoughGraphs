@@ -4,10 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 public interface IGuiTexture {
 
-    default IGuiTexture setColor(int color) {
-        return this;
-    }
-
     int getWidth();
 
     int getHeight();

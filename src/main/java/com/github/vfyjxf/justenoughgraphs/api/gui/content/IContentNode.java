@@ -18,7 +18,7 @@ public interface IContentNode<T> extends IGuiWidget {
     IContentNode<T> setPos(int x, int y);
 
     @Override
-    IContentNode<T> resize(int width, int height);
+    IContentNode<T> setSize(int width, int height);
 
     @Override
     IContentNode<T> setBounds(int x, int y, int width, int height);

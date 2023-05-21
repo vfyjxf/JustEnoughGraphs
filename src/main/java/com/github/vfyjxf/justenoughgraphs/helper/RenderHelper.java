@@ -20,6 +20,7 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
@@ -266,7 +267,7 @@ public class RenderHelper {
     }
 
     public static void drawLine(PoseStack poseStack, Vec2 start, Vec2 end, int color, float width) {
-        drawLines(poseStack, List.of(start, end), color, color, width);
+        drawLineStrip(poseStack, List.of(start, end), color, width);
     }
 
     public static void drawLines(PoseStack poseStack, List<Vec2> points, int startColor, int endColor, float width) {
@@ -357,6 +358,53 @@ public class RenderHelper {
                 .endVertex();
     }
 
+
+    public static void drawLineStrip(PoseStack poseStack, List<Vec2> points, int color, float width) {
+        RenderSystem.enableBlend();
+        RenderSystem.disableTexture();
+
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder buffer = tesselator.getBuilder();
+        Matrix4f mat = poseStack.last().pose();
+        buffer.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+        float red = (float) (color >> 16 & 255) / 255.0F;
+        float green = (float) (color >> 8 & 255) / 255.0F;
+        float blue = (float) (color & 255) / 255.0F;
+        float alpha = (float) (color >> 24 & 255) / 255.0F;
+        for (int index = 0; index < points.size(); index++) {
+            Vec2 curr = points.get(index);
+            float x = curr.x;
+            float y = curr.y;
+
+            Vec2 prev = (index == 0) ? null : points.get(index - 1);
+            Vec2 next = (index == points.size() - 1) ? null : points.get(index + 1);
+
+            float dx, dy;
+            if (prev == null) {
+                dx = next.x - x;
+                dy = next.y - y;
+            } else if (next == null) {
+                dx = x - prev.x;
+                dy = y - prev.y;
+            } else {
+                dx = next.x - prev.x;
+                dy = next.y - prev.y;
+            }
+            float dLen = (float) Math.sqrt(dx * dx + dy * dy);
+            float nx = dx / dLen * width / 2;
+            float ny = dy / dLen * width / 2;
+
+            buffer.vertex(mat, x + ny, y - nx, 0F)
+                    .color(red, green, blue, alpha)
+                    .endVertex();
+            buffer.vertex(mat, x - ny, y + nx, 0F)
+                    .color(red, green, blue, alpha)
+                    .endVertex();
+        }
+        tesselator.end();
+        RenderSystem.enableTexture();
+        RenderSystem.defaultBlendFunc();
+    }
 
     public static void drawTextureRect(PoseStack poseStack, float x, float y, float width, float height) {
         Tesselator tesselator = Tesselator.getInstance();

@@ -2,7 +2,7 @@ package com.github.vfyjxf.justenoughgraphs.gui.widgets.tree;
 
 import com.github.vfyjxf.justenoughgraphs.api.content.IContent;
 import com.github.vfyjxf.justenoughgraphs.api.recipe.RecipeType;
-import com.github.vfyjxf.justenoughgraphs.gui.screen.recipe.tree.RecipeTreeScreen;
+import com.github.vfyjxf.justenoughgraphs.gui.screen.recipe.tree.RecipeContentTreeScreen;
 import com.github.vfyjxf.justenoughgraphs.gui.textures.ColorBorderTexture;
 import com.github.vfyjxf.justenoughgraphs.gui.widgets.IColoredWidget;
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +21,7 @@ non-sealed class ColoredTreeNode<T> extends AbstractRecipeTreeNode<T> implements
 
     public ColoredTreeNode(
             IContent<T> content,
-            RecipeTreeScreen.TreeContext context,
+            RecipeContentTreeScreen.TreeContext context,
             Map<RecipeType<?>, List<?>> recipeMap,
             @Nullable Object recipe
     ) {

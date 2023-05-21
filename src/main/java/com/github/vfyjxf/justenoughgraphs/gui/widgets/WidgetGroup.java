@@ -4,6 +4,7 @@ import com.github.vfyjxf.justenoughgraphs.api.gui.IGuiWidget;
 import com.github.vfyjxf.justenoughgraphs.api.gui.IWidgetGroup;
 import com.github.vfyjxf.justenoughgraphs.api.gui.input.IInputContext;
 import com.github.vfyjxf.justenoughgraphs.api.gui.texture.IGuiTexture;
+import com.github.vfyjxf.justenoughgraphs.utils.ErrorChecker;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.Nullable;
@@ -15,6 +16,7 @@ import java.util.function.BiPredicate;
 
 public class WidgetGroup extends Widget implements IWidgetGroup {
 
+    private boolean isDynamicSize = false;
     protected final List<IGuiWidget> children = new ArrayList<>();
     protected final List<IGroupChangedListener> listeners = new ArrayList<>();
 
@@ -38,14 +40,25 @@ public class WidgetGroup extends Widget implements IWidgetGroup {
     }
 
     @Override
+    public boolean isDynamicSize() {
+        return this.isDynamicSize;
+    }
+
+    @Override
+    public IWidgetGroup setDynamicSize(boolean isDynamicSize) {
+        this.isDynamicSize = isDynamicSize;
+        return this;
+    }
+
+    @Override
     public IWidgetGroup setPos(int x, int y) {
         super.setPos(x, y);
         return this;
     }
 
     @Override
-    public IWidgetGroup resize(int width, int height) {
-        super.resize(width, height);
+    public IWidgetGroup setSize(int width, int height) {
+        super.setSize(width, height);
         return this;
     }
 
@@ -56,11 +69,19 @@ public class WidgetGroup extends Widget implements IWidgetGroup {
     }
 
     @Override
-    public void addWidget(IGuiWidget widget) {
+    public IWidgetGroup addWidget(IGuiWidget widget) {
         if (!children.contains(widget)) {
             if (this.addWidget(children.size(), widget))
                 recomputeSize();
         }
+        return this;
+    }
+
+    @Override
+    public IWidgetGroup insertWidget(int index, IGuiWidget widget) {
+        ErrorChecker.checkRangeClosed(index, children.size());
+        this.addWidget(index, widget);
+        return this;
     }
 
     @Override

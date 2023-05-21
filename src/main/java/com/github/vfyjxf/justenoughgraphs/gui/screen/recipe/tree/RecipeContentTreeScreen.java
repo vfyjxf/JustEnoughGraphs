@@ -39,7 +39,7 @@ import java.util.*;
 /**
  * Rule: input -> catalyst -> output
  */
-public class RecipeTreeScreen extends ModularScreen {
+public class RecipeContentTreeScreen extends ModularScreen {
 
     private static final Logger LOGGER = LogManager.getLogger();
     public static final Color LINE_COLOR = new Color(255, 255, 255, 255);
@@ -59,11 +59,11 @@ public class RecipeTreeScreen extends ModularScreen {
     private Component errorMessage = null;
 
     public static <T> Screen openTest(T sourceRecipe) {
-        return new RecipeTreeScreen(sourceRecipe, new RecursiveGraphLayoutEngine());
+        return new RecipeContentTreeScreen(sourceRecipe, new RecursiveGraphLayoutEngine());
     }
 
 
-    public <T> RecipeTreeScreen(T sourceRecipe, IGraphLayoutEngine layoutEngine) {
+    public <T> RecipeContentTreeScreen(T sourceRecipe, IGraphLayoutEngine layoutEngine) {
         this.registryManager = IRegistryManager.getInstance();
         this.layoutEngine = layoutEngine;
         this.sourceRecipe = sourceRecipe;

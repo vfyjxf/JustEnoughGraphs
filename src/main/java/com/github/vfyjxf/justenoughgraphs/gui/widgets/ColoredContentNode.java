@@ -48,7 +48,7 @@ public class ColoredContentNode<T> extends Widget implements IContentNode<T>, IC
         this.renderer = manager.getContentRenderer(content.getType());
         this.helper = manager.getContentHelper(content.getType());
         this.border = border;
-        this.resize(renderer.getWidth() + border * 2, renderer.getHeight() + border * 2);
+        this.setSize(renderer.getWidth() + border * 2, renderer.getHeight() + border * 2);
         this.setBackground(this.borderTexture = new ColorBorderTexture(1, Color.WHITE, Color.WHITE, getWidth(), getHeight()));
         this.borderTexture.setBorder(border);
     }
@@ -65,7 +65,7 @@ public class ColoredContentNode<T> extends Widget implements IContentNode<T>, IC
         IRegistryManager manager = IRegistryManager.getInstance();
         this.renderer = manager.getContentRenderer(this.content.getType());
         this.helper = manager.getContentHelper(this.content.getType());
-        this.resize(renderer.getWidth() + 2, renderer.getHeight() + 2);
+        this.setSize(renderer.getWidth() + 2, renderer.getHeight() + 2);
         return (IContentNode<V>) this;
     }
 
@@ -105,8 +105,8 @@ public class ColoredContentNode<T> extends Widget implements IContentNode<T>, IC
     }
 
     @Override
-    public ColoredContentNode<T> resize(int width, int height) {
-        super.resize(width, height);
+    public ColoredContentNode<T> setSize(int width, int height) {
+        super.setSize(width, height);
         return this;
     }
 

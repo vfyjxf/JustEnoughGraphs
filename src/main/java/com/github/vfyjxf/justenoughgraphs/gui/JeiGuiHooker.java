@@ -1,6 +1,7 @@
 package com.github.vfyjxf.justenoughgraphs.gui;
 
-import com.github.vfyjxf.justenoughgraphs.gui.screen.recipe.tree.RecipeTreeScreen;
+import com.github.vfyjxf.justenoughgraphs.gui.screen.TestScreen;
+import com.github.vfyjxf.justenoughgraphs.gui.screen.recipe.tree.RecipeContentTreeScreen;
 import com.github.vfyjxf.justenoughgraphs.mixin.jei.RecipesGuiAccessor;
 import mezz.jei.api.gui.IRecipeLayoutDrawable;
 import mezz.jei.gui.recipes.RecipesGui;
@@ -21,6 +22,9 @@ public class JeiGuiHooker {
 
     @SubscribeEvent
     public void onGuiInit(ScreenEvent.Init.Post event) {
+        if (event.getScreen().getClass() != TestScreen.class){
+            Minecraft.getInstance().setScreen(TestScreen.openTest());
+        }
         if (event.getScreen() instanceof RecipesGui) {
             recipesGui = (RecipesGui) event.getScreen();
             for (Button openTreeButton : openTreeButtons) {
@@ -36,7 +40,7 @@ public class JeiGuiHooker {
                         buttonArea.getWidth(),
                         buttonArea.getHeight(),
                         Component.empty(),
-                        button -> Minecraft.getInstance().setScreen(RecipeTreeScreen.openTest(recipeLayout.getRecipe())));
+                        button -> System.out.println("open tree"));
                 event.getScreen().renderables.add(openTreeButton);
                 openTreeButtons.add(openTreeButton);
             }

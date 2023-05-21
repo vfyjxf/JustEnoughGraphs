@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 import java.util.stream.Stream;
 
-@Mixin(RecipeLayoutBuilder.class)
+@Mixin(value = RecipeLayoutBuilder.class, remap = false)
 public interface RecipeLayoutBuilderAccessor {
     @Invoker
     Stream<IRecipeLayoutSlotSource> callSlotStream();

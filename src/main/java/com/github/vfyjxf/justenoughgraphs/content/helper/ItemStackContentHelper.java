@@ -1,6 +1,7 @@
 package com.github.vfyjxf.justenoughgraphs.content.helper;
 
 import com.github.vfyjxf.justenoughgraphs.api.content.IContentHelper;
+import com.github.vfyjxf.justenoughgraphs.api.content.IdentifierContext;
 import com.github.vfyjxf.justenoughgraphs.helper.TagHelper;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -33,6 +34,11 @@ public class ItemStackContentHelper implements IContentHelper<ItemStack> {
                     .orElse("None");
         }
         return modId;
+    }
+
+    @Override
+    public String getIdentifier(ItemStack toGet, IdentifierContext type) {
+        return null;
     }
 
     @Override

@@ -6,7 +6,7 @@ import com.github.vfyjxf.justenoughgraphs.api.gui.IWidgetGroup;
 import com.github.vfyjxf.justenoughgraphs.api.gui.content.IContentNode;
 import com.github.vfyjxf.justenoughgraphs.api.recipe.IngredientType;
 import com.github.vfyjxf.justenoughgraphs.api.recipe.RecipeType;
-import com.github.vfyjxf.justenoughgraphs.gui.screen.recipe.tree.RecipeTreeScreen;
+import com.github.vfyjxf.justenoughgraphs.gui.screen.recipe.tree.RecipeContentTreeScreen;
 import com.github.vfyjxf.justenoughgraphs.gui.textures.ColorBorderTexture;
 import com.github.vfyjxf.justenoughgraphs.gui.widgets.ButtonWidget;
 import com.github.vfyjxf.justenoughgraphs.gui.widgets.ColoredContentNode;
@@ -39,13 +39,13 @@ import java.util.Map;
  */
 public abstract sealed class AbstractRecipeTreeNode<T> extends WidgetGroup permits ColoredTreeNode {
 
-    public static <T> AbstractRecipeTreeNode<T> create(IContent<T> content, RecipeTreeScreen.TreeContext context, Map<RecipeType<?>, List<?>> recipeMap) {
+    public static <T> AbstractRecipeTreeNode<T> create(IContent<T> content, RecipeContentTreeScreen.TreeContext context, Map<RecipeType<?>, List<?>> recipeMap) {
         Object recipe = recipeMap.values().stream().flatMap(Collection::stream).findFirst().orElse(null);
         return new ColoredTreeNode<>(content, context, recipeMap, recipe).setBackgroundColor(0x000000);
     }
 
 
-    private final RecipeTreeScreen.TreeContext context;
+    private final RecipeContentTreeScreen.TreeContext context;
     @Nullable
     protected Object recipe;
     @Nullable
@@ -65,7 +65,7 @@ public abstract sealed class AbstractRecipeTreeNode<T> extends WidgetGroup permi
     public AbstractRecipeTreeNode(
 
             IContent<T> content,
-            RecipeTreeScreen.TreeContext context,
+            RecipeContentTreeScreen.TreeContext context,
             Map<RecipeType<?>, List<?>> recipeMap,
             @Nullable Object recipe
     ) {

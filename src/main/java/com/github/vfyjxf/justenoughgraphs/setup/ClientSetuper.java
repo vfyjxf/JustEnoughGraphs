@@ -26,8 +26,8 @@ public class ClientSetuper extends CommonSetuper {
                 .register(RegisterClientReloadListenersEvent.class, this::onRegisterClientReloadListenersEvent);
         eventBus.register(new JeghRegister());
         eventBus.register(new JeiGuiHooker());
-        LayoutMetaDataService service = LayoutMetaDataService.getInstance(JustEnoughGraphs.class.getClassLoader());
-        service.registerLayoutMetaDataProviders(new LayeredOptions());
+//        LayoutMetaDataService service = LayoutMetaDataService.getInstance(JustEnoughGraphs.class.getClassLoader());
+//        service.registerLayoutMetaDataProviders(new LayeredOptions());
     }
 
     @SubscribeEvent

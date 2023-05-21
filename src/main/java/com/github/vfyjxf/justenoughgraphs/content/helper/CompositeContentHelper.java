@@ -2,6 +2,7 @@ package com.github.vfyjxf.justenoughgraphs.content.helper;
 
 import com.github.vfyjxf.justenoughgraphs.api.content.ICompositeContent;
 import com.github.vfyjxf.justenoughgraphs.api.content.IContentHelper;
+import com.github.vfyjxf.justenoughgraphs.api.content.IdentifierContext;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -11,6 +12,11 @@ import java.util.Collection;
 public class CompositeContentHelper implements IContentHelper<ICompositeContent> {
     @Override
     public String getModId(ICompositeContent toGet) {
+        return null;
+    }
+
+    @Override
+    public String getIdentifier(ICompositeContent toGet, IdentifierContext type) {
         return null;
     }
 

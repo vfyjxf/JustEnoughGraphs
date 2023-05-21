@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import java.util.List;
 
-@Mixin(RecipeManagerInternal.class)
+@Mixin(value = RecipeManagerInternal.class, remap = false)
 public interface RecipeManagerInternalAccessor {
     @Accessor
     List<IRecipeCategory<?>> getRecipeCategories();

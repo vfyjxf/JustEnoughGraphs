@@ -4,20 +4,17 @@ buildscript {
         mavenCentral()
         maven { url = 'https://repo.spongepowered.org/maven' }
     }
-    dependencies {
-        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
-    }
 }
 
 plugins {
     id 'eclipse'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '5.1.+'
+//    id 'net.minecraftforge.gradle' version '5.1.+'
+//    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
+    id "dev.architectury.loom" version "1.1-SNAPSHOT"
     id 'com.github.johnrengelman.shadow' version '7.+'
-    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 }
-
-apply plugin: 'org.spongepowered.mixin'
 
 version = mod_version
 group = mod_group
@@ -31,88 +28,73 @@ def static isJetBrainsRuntime() {
     return System.getProperty('java.vm.vendor').contains('JetBrains')
 }
 
-minecraft {
-    mappings channel: 'parchment', version: "${mapping_version}"
-    runs {
-        client {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'justenoughgraphs'
-            if (isJetBrainsRuntime()) {
-                jvmArgs "-XX:+AllowEnhancedClassRedefinition"
-                jvmArgs "-XX:HotswapAgent=fatjar"
-            }
-            mods {
-                justenoughgraphs {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        server {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'justenoughgraphs'
-            if (isJetBrainsRuntime()) {
-                jvmArgs "-XX:+AllowEnhancedClassRedefinition"
-                jvmArgs "-XX:HotswapAgent=fatjar"
-            }
-            mods {
-                justenoughgraphs {
-                    source sourceSets.main
-                }
-            }
-        }
-        gameTestServer {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'justenoughgraphs'
-            if (isJetBrainsRuntime()) {
-                jvmArgs "-XX:+AllowEnhancedClassRedefinition"
-                jvmArgs "-XX:HotswapAgent=fatjar"
-            }
-            mods {
-                justenoughgraphs {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            args '--mod', 'justenoughgraphs', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-            mods {
-                justenoughgraphs {
-                    source sourceSets.main
-                }
-            }
+loom {
+    silentMojangMappingsLicense()
+    forge {
+        mixinConfigs = [
+                "justenoughgraphs.mixins.json"
+        ]
+        dataGen {
+            mod project.mod_id
         }
     }
+    runs {
+        /*
+        client {
+            if (isJetBrainsRuntime()) {
+                vmArgs "-XX:+AllowEnhancedClassRedefinition"
+                vmArgs "-XX:HotswapAgent=fatjar"
+            }
+        }
+        server {
+            if (isJetBrainsRuntime()) {
+                vmArgs "-XX:+AllowEnhancedClassRedefinition"
+                vmArgs "-XX:HotswapAgent=fatjar"
+            }
+        }
+         */
+    }
+    runConfigs.each { it.setIdeConfigGenerated(true) } // Uncomment this if run configs not generated
+//    addTaskBeforeRun(":${name}:classes")
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 configurations {
     shade
-    minecraftLibrary.extendsFrom(shade)
+    shade.extendsFrom(forgeRuntimeLibrary)
+    shade.extendsFrom(implementation)
+    modLibrary
+//    minecraftLibrary.extendsFrom(shade)
 }
 
 repositories {
-
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+    maven {
+        name = 'ParchmentMC'
+        url = 'https://maven.parchmentmc.org'
+    }
     maven {
         // location of the maven that hosts JEI files
         name = "Progwml6 maven"
         url = "https://dvs1.progwml6.com/files/maven/"
+        content {
+            includeGroup 'mezz.jei'
+        }
     }
     maven {
         // location of a maven mirror for JEI files, as a fallback
         name = "ModMaven"
         url = "https://modmaven.dev"
+    }
+    maven {
+        name = "Essential"
+        url = "https://repo.essential.gg/repository/maven-public"
     }
     mavenCentral()
 
@@ -120,28 +102,41 @@ repositories {
 
 dependencies {
 
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    minecraft "com.mojang:minecraft:${minecraft_version}"
 
-    compileOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}"))
-    runtimeOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}"))
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${minecraft_version}:${mapping_version}@zip")
+    }
+
+    forge "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+
+    /*
+    modImplementation("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}") { transitive = false }
+    modImplementation("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}") { transitive = false }
+    modImplementation("mezz.jei:jei-${minecraft_version}-common:${jei_version}") { transitive = false }
+    modImplementation("mezz.jei:jei-${minecraft_version}-core:${jei_version}") { transitive = false }
+    modImplementation("mezz.jei:jei-${minecraft_version}-gui:${jei_version}") { transitive = false }
+    modImplementation("mezz.jei:jei-${minecraft_version}-lib:${jei_version}") { transitive = false }
+    modImplementation("mezz.jei:jei-${minecraft_version}-forge:${jei_version}") { transitive = false }
+     */
+    modImplementation "curse.maven:jei-238222:4494410"
 
 
     shade 'org.jooq:jool:0.9.15'
-    shade('org.eclipse.elk:org.eclipse.elk.core:0.8.1') {
+    implementation 'org.jooq:jool:0.9.15'
+    forgeRuntimeLibrary 'org.jooq:jool:0.9.15'
+
+    compileOnly('org.eclipse.elk:org.eclipse.elk.core:0.8.1') {
         transitive = false
     }
-    shade('org.eclipse.elk:org.eclipse.elk.alg.common:0.8.1') {
+    compileOnly('org.eclipse.elk:org.eclipse.elk.alg.common:0.8.1') {
         transitive = false
     }
-    shade('org.eclipse.elk:org.eclipse.elk.alg.layered:0.8.1') {
+    compileOnly('org.eclipse.elk:org.eclipse.elk.alg.layered:0.8.1') {
         transitive = false
     }
-    /*
-    shade('org.eclipse.elk:org.eclipse.elk.alg.mrtree:0.8.1') {
-        transitive = false
-    }
-     */
-    shade('org.eclipse.elk:org.eclipse.elk.graph:0.8.1') {
+    compileOnly('org.eclipse.elk:org.eclipse.elk.graph:0.8.1') {
         //exclude duplicate dependencies
         exclude group: 'com.google.guava', module: 'failureaccess'
         exclude group: 'com.google.guava', module: 'listenablefuture'
@@ -149,7 +144,7 @@ dependencies {
         exclude group: 'org.checkerframework', module: 'checker-qual'
         exclude group: 'com.google.j2objc', module: 'j2objc-annotations'
     }
-    shade('org.eclipse.elk:org.eclipse.elk.graph.json:0.8.1') {
+    compileOnly('org.eclipse.elk:org.eclipse.elk.graph.json:0.8.1') {
         //exclude duplicate dependencies
         exclude group: 'com.google.code.gson', module: 'gson'
         exclude group: 'com.google.guava', module: 'failureaccess'
@@ -158,24 +153,46 @@ dependencies {
         exclude group: 'org.checkerframework', module: 'checker-qual'
         exclude group: 'com.google.j2objc', module: 'j2objc-annotations'
     }
-    /*
-    shade('org.eclipse.elk:org.eclipse.elk.alg.packing.rectangles:0.6.0') {
+
+    shade("gg.essential:elementa-${elementa_version_tag}:${elementa_version}") {
         transitive = false
     }
-     */
+    shade("gg.essential:universalcraft-${minecraft_version}-forge:265") {
+        transitive = false
+    }
+
+
+    forgeRuntimeLibrary(compileOnly("gg.essential:elementa-${elementa_version_tag}:${elementa_version}") {
+        exclude group: 'gg.essential', module: "universalcraft-${elementa_version_tag}"
+    })/*
+    forgeRuntimeLibrary("gg.essential:elementa-${elementa_version_tag}:${elementa_version}") {
+        exclude group: 'gg.essential', module: "universalcraft-${elementa_version_tag}"
+    }*/
+    forgeRuntimeLibrary(compileOnly("gg.essential:universalcraft-${minecraft_version}-forge:265") {
+        exclude group: 'org.jetbrains.kotlin'
+    })/*
+    forgeRuntimeLibrary("gg.essential:universalcraft-${minecraft_version}-forge:265") {
+        exclude group: 'org.jetbrains.kotlin'
+    }*/
+
+
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.10")
+    forgeRuntimeLibrary("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10")
+    forgeRuntimeLibrary("org.jetbrains.kotlin:kotlin-reflect:1.6.10")
+
 
 }
+/*
+processResources {
+    inputs.property "version", project.version
 
-mixin {
-    add sourceSets.main, "justenoughgraphs.refmap.json"
-
-    config "justenoughgraphs.mixins.json"
-
-    debug.export = true
-    mixin.hotSwap = true
-    mixin.checks.interfaces = true
+    filesMatching("META-INF/mods.toml") {
+        expand "version": project.mod_version
+    }
 }
 
+ */
 
 jar {
     archiveClassifier.set('slim')
@@ -193,8 +210,9 @@ jar {
 }
 
 shadowJar {
-    archiveClassifier.set("")
+    archiveClassifier.set("all")
     configurations = [project.configurations.shade]
+
 
     exclude 'about*'
     exclude 'plugin*'
@@ -219,6 +237,8 @@ shadowJar {
 
     relocate 'org.ecplise.elk', 'com.github.vfyjxf.shadow.org.eclipse.elk'
     relocate 'org.jooq', 'com.github.vfyjxf.shadow.org.jooq'
+    relocate 'gg.essential.elementa', 'com.github.vfyjxf.shadow.elementa'
+    relocate 'gg.essential.universal', 'com.github.vfyjxf.shadow.universalcraft'
 //    relocate 'org.checkerframework', 'com.github.vfyjxf.shadow.org.checkerframework'
 //    relocate 'org.codehaus', 'com.github.vfyjxf.shadow.org.codehaus'
 //    relocate 'com.google', 'com.github.vfyjxf.shadow.com.google'
@@ -232,17 +252,14 @@ shadowJar {
         exclude('com.google.j2objc:j2objc-annotations')
     }
 
-    finalizedBy 'reobfShadowJar'
+//    finalizedBy 'reobfShadowJar'
 }
 
-assemble.dependsOn shadowJar
-
-reobf {
-    shadowJar {}
+remapJar {
+    dependsOn(shadowJar)
+    inputFile.set(shadowJar.archiveFile)
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
-
-jar.finalizedBy('reobfJar')

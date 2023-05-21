@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import java.util.List;
 
-@Mixin(RecipesGui.class)
+@Mixin(value = RecipesGui.class, remap = false)
 public interface RecipesGuiAccessor {
     @Accessor
     List<IRecipeLayoutDrawable<?>> getRecipeLayouts();

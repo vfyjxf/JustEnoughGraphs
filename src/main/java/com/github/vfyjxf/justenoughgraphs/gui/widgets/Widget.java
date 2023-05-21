@@ -103,7 +103,7 @@ public class Widget implements IGuiWidget {
     }
 
     @Override
-    public IGuiWidget resize(int width, int height) {
+    public IGuiWidget setSize(int width, int height) {
         this.width = width;
         this.height = height;
         return this;

@@ -16,6 +16,8 @@ public interface IContentHelper<T> {
 
     String getModId(T toGet);
 
+    String getIdentifier(T toGet,IdentifierContext type);
+
     CompoundTag serialize(T toSerialize);
 
     default CompoundTag serialize(IContent<T> toSerialize) {

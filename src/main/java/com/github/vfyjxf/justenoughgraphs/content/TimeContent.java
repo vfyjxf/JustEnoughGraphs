@@ -29,6 +29,11 @@ public class TimeContent extends NumericalContent<Long> {
     }
 
     @Override
+    public RecipeRole getRole() {
+        return RecipeRole.INPUT;
+    }
+
+    @Override
     public List<Component> getDescrictions() {
         return descriptions;
     }

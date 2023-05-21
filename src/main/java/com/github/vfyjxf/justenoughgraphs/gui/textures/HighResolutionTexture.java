@@ -9,6 +9,9 @@ public class HighResolutionTexture implements IGuiTexture {
     private final int scale;
 
     public HighResolutionTexture(IGuiTexture texture, int scale) {
+        if (texture instanceof GuiTextureGroup) {
+            throw new IllegalArgumentException("GuiTextureGroup is not supported");
+        }
         int width = texture.getWidth();
         int height = texture.getHeight();
         if (width % scale != 0) {

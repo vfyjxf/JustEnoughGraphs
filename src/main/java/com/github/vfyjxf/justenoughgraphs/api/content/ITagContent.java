@@ -18,6 +18,14 @@ public interface ITagContent<STACK, VALUE> extends IContent<STACK> {
     ContentType<STACK> getType();
 
     /**
+     * There are no recipes that support Tag as an output.
+     */
+    @Override
+    default RecipeRole getRole() {
+        return RecipeRole.INPUT;
+    }
+
+    /**
      * @return the ContentType of the tag.
      */
     ContentType<VALUE> getTagType();

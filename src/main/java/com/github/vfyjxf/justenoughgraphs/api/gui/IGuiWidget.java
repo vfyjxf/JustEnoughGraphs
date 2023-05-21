@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * An interface representing a gui component whose coordinates are referenced to the parent component.
  */
-public interface IGuiWidget extends Widget, GuiEventListener {
+public interface IGuiWidget extends Widget, GuiEventListener, IDraggableWidget {
 
     int getX();
 
@@ -40,7 +40,7 @@ public interface IGuiWidget extends Widget, GuiEventListener {
     IGuiWidget setPos(int x, int y);
 
     @CanIgnoreReturnValue
-    IGuiWidget resize(int width, int height);
+    IGuiWidget setSize(int width, int height);
 
     @CanIgnoreReturnValue
     IGuiWidget setBounds(int x, int y, int width, int height);
@@ -59,15 +59,17 @@ public interface IGuiWidget extends Widget, GuiEventListener {
 
     void setFocused(boolean focused);
 
-    boolean isDragging();
-
-    void setDragging(boolean dragging);
-
     @Nullable
     IWidgetGroup getParent();
 
     @CanIgnoreReturnValue
     IGuiWidget setParent(@Nullable IWidgetGroup parent);
+
+    default IGuiWidget setChildOf(IWidgetGroup parent) {
+        this.setParent(parent);
+        parent.addWidget(this);
+        return this;
+    }
 
     default void update() {
 

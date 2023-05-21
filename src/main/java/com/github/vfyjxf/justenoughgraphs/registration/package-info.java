@@ -1,6 +1,6 @@
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-package com.github.vfyjxf.justenoughgraphs.gui.factories;
+package com.github.vfyjxf.justenoughgraphs.registration;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

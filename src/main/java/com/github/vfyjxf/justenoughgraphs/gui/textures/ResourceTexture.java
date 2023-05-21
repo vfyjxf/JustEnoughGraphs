@@ -48,8 +48,8 @@ public class ResourceTexture implements IGuiTexture {
         return height;
     }
 
-    @Override
-    public IGuiTexture setColor(int color) {
+
+    public ResourceTexture setColor(int color) {
         this.color = color;
         return this;
     }

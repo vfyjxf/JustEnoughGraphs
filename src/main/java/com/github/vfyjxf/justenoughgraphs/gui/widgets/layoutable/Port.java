@@ -27,7 +27,7 @@ public class Port extends Widget {
             throw new IllegalArgumentException("Parent node not found");
         }
         ElkPort self = ElkGraphUtil.createPort(parentNode);
-        Port port = new Port(parent, self, color).resize(width, height);
+        Port port = new Port(parent, self, color).setSize(width, height);
         graph.addWidget(port);
         return port;
     }
@@ -125,8 +125,8 @@ public class Port extends Widget {
     }
 
     @Override
-    public Port resize(int width, int height) {
-        super.resize(width, height);
+    public Port setSize(int width, int height) {
+        super.setSize(width, height);
         this.self.setWidth(width);
         this.self.setHeight(height);
         return this;
@@ -136,7 +136,7 @@ public class Port extends Widget {
     public Port setBounds(int x, int y, int width, int height) {
         super.setBounds(x, y, width, height);
         this.setPos(x, y);
-        this.resize(width, height);
+        this.setSize(width, height);
         return this;
     }
 

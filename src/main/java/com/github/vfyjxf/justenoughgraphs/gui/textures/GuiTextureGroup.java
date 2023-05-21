@@ -3,9 +3,13 @@ package com.github.vfyjxf.justenoughgraphs.gui.textures;
 import com.github.vfyjxf.justenoughgraphs.api.gui.texture.IGuiTexture;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-public class BlankTextures implements IGuiTexture {
+public class GuiTextureGroup implements IGuiTexture {
 
-    public static final BlankTextures BLANK_TEXTURES = new BlankTextures();
+    private final IGuiTexture[] textures;
+
+    public GuiTextureGroup(IGuiTexture... textures) {
+        this.textures = textures;
+    }
 
     @Override
     public int getWidth() {
@@ -19,11 +23,8 @@ public class BlankTextures implements IGuiTexture {
 
     @Override
     public void render(PoseStack stack, int mouseX, int mouseY, int xOffset, int yOffset) {
-        //NOOP
-    }
-
-    @Override
-    public void renderSubArea(PoseStack stack, int mouseX, int mouseY, int xOffset, int yOffset, int maskTop, int maskBottom, int maskLeft, int maskRight) {
-        //NOOP
+        for (IGuiTexture texture : textures) {
+            texture.render(stack, mouseX, mouseY, xOffset, yOffset);
+        }
     }
 }
